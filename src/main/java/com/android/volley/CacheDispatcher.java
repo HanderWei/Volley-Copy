@@ -23,6 +23,8 @@ import java.util.concurrent.BlockingQueue;
 /**
  * Provides a thread for performing cache triage on a queue of requests.
  *
+ * 提供一个线程处理缓存请求
+ *
  * Requests added to the specified cache queue are resolved from cache.
  * Any deliverable response is posted back to the caller via a
  * {@link ResponseDelivery}.  Cache misses and responses that require
@@ -43,7 +45,7 @@ public class CacheDispatcher extends Thread {
     private final Cache mCache;
 
     /** For posting responses. */
-    private final ResponseDelivery mDelivery;
+    private final ResponseDelivery mDelivery;   //分发响应
 
     /** Used for telling us to die. */
     private volatile boolean mQuit = false;
@@ -91,21 +93,27 @@ public class CacheDispatcher extends Thread {
                 request.addMarker("cache-queue-take");
 
                 // If the request has been canceled, don't bother dispatching it.
+                // 如果该请求已经被取消，则终止该Request，不分发Response
                 if (request.isCanceled()) {
                     request.finish("cache-discard-canceled");
                     continue;
                 }
 
                 // Attempt to retrieve this item from cache.
+                // 尝试从缓存中获取
                 Cache.Entry entry = mCache.get(request.getCacheKey());
                 if (entry == null) {
                     request.addMarker("cache-miss");
                     // Cache miss; send off to the network dispatcher.
+                    // 缓存未命中，走网络请求
                     mNetworkQueue.put(request);
                     continue;
                 }
 
+                // 缓存命中
+
                 // If it is completely expired, just send it to the network.
+                // 如果缓存已过期，则走网络请求
                 if (entry.isExpired()) {
                     request.addMarker("cache-hit-expired");
                     request.setCacheEntry(entry);
@@ -115,11 +123,12 @@ public class CacheDispatcher extends Thread {
 
                 // We have a cache hit; parse its data for delivery back to the request.
                 request.addMarker("cache-hit");
+                // 调用Request的 parseNetworkResponse方法
                 Response<?> response = request.parseNetworkResponse(
                         new NetworkResponse(entry.data, entry.responseHeaders));
                 request.addMarker("cache-hit-parsed");
 
-                if (!entry.refreshNeeded()) {
+                if (!entry.refreshNeeded()) { // entry.refreshNeeded() == false
                     // Completely unexpired cache hit. Just deliver the response.
                     mDelivery.postResponse(request, response);
                 } else {
@@ -134,6 +143,8 @@ public class CacheDispatcher extends Thread {
 
                     // Post the intermediate response back to the user and have
                     // the delivery then forward the request along to the network.
+
+                    // 分发Response的同时，重新发送请求
                     mDelivery.postResponse(request, response, new Runnable() {
                         @Override
                         public void run() {

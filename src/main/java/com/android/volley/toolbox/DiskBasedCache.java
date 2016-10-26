@@ -137,7 +137,7 @@ public class DiskBasedCache implements Cache {
      * Initializes the DiskBasedCache by scanning for all files currently in the
      * specified root directory. Creates the root directory if necessary.
      *
-     * 初始化DiskBasedCache，在当前Cache目录将所有缓存扫描至mEntries
+     * 初始化DiskBasedCache，扫描当前Cache目录中的所有缓存，并添加至mEntries
      */
     @Override
     public synchronized void initialize() {
