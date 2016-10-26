@@ -27,6 +27,8 @@ import java.util.concurrent.BlockingQueue;
 /**
  * Provides a thread for performing network dispatch from a queue of requests.
  *
+ * 提供一个线程分发网络请求
+ *
  * Requests added to the specified queue are processed from the network via a
  * specified {@link Network} interface. Responses are committed to cache, if
  * eligible, using a specified {@link Cache} interface. Valid responses and
@@ -38,9 +40,9 @@ public class NetworkDispatcher extends Thread {
     /** The network interface for processing requests. */
     private final Network mNetwork;
     /** The cache to write to. */
-    private final Cache mCache;
+    private final Cache mCache; //写入缓存
     /** For posting responses and errors. */
-    private final ResponseDelivery mDelivery;
+    private final ResponseDelivery mDelivery; //分发响应
     /** Used for telling us to die. */
     private volatile boolean mQuit = false;
 
@@ -101,6 +103,7 @@ public class NetworkDispatcher extends Thread {
 
                 // If the request was cancelled already, do not perform the
                 // network request.
+                // 如果当前Request已经取消掉了，则不执行这个网络请求
                 if (request.isCanceled()) {
                     request.finish("network-discard-cancelled");
                     continue;
@@ -109,21 +112,25 @@ public class NetworkDispatcher extends Thread {
                 addTrafficStatsTag(request);
 
                 // Perform the network request.
+                // 执行网络请求
                 NetworkResponse networkResponse = mNetwork.performRequest(request);
                 request.addMarker("network-http-complete");
 
                 // If the server returned 304 AND we delivered a response already,
                 // we're done -- don't deliver a second identical response.
+                // 如果服务端返回304，并且已经有Response，则并不分发第二个Response
                 if (networkResponse.notModified && request.hasHadResponseDelivered()) {
                     request.finish("not-modified");
                     continue;
                 }
 
                 // Parse the response here on the worker thread.
+                // 在Worker线程解析网络响应
                 Response<?> response = request.parseNetworkResponse(networkResponse);
                 request.addMarker("network-parse-complete");
 
                 // Write to cache if applicable.
+                // 写入缓存
                 // TODO: Only update cache metadata instead of entire record for 304s.
                 if (request.shouldCache() && response.cacheEntry != null) {
                     mCache.put(request.getCacheKey(), response.cacheEntry);
@@ -131,10 +138,12 @@ public class NetworkDispatcher extends Thread {
                 }
 
                 // Post the response back.
+                // 分发Response
                 request.markDelivered();
                 mDelivery.postResponse(request, response);
             } catch (VolleyError volleyError) {
                 volleyError.setNetworkTimeMs(SystemClock.elapsedRealtime() - startTimeMs);
+                // 分发Error
                 parseAndDeliverNetworkError(request, volleyError);
             } catch (Exception e) {
                 VolleyLog.e(e, "Unhandled exception %s", e.toString());
@@ -145,6 +154,7 @@ public class NetworkDispatcher extends Thread {
         }
     }
 
+    // 解析并分发网络Error
     private void parseAndDeliverNetworkError(Request<?> request, VolleyError error) {
         error = request.parseNetworkError(error);
         mDelivery.postError(request, error);

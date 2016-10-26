@@ -19,6 +19,8 @@ package com.android.volley;
 /**
  * Encapsulates a parsed response for delivery.
  *
+ * 封装了一个已被解析的Response便于分发
+ *
  * @param <T> Parsed type of this response
  */
 public class Response<T> {
@@ -26,6 +28,7 @@ public class Response<T> {
     /** Callback interface for delivering parsed responses. */
     public interface Listener<T> {
         /** Called when a response is received. */
+        /** 当接收Response时回调该方法 */
         public void onResponse(T response);
     }
 
@@ -34,6 +37,8 @@ public class Response<T> {
         /**
          * Callback method that an error has been occurred with the
          * provided error code and optional user-readable message.
+         *
+         * 当出现异常或者错误时，回调该方法
          */
         public void onErrorResponse(VolleyError error);
     }
