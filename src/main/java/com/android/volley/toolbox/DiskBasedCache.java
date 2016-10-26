@@ -45,7 +45,7 @@ public class DiskBasedCache implements Cache {
 
     /** Map of the Key, CacheHeader pairs */
     private final Map<String, CacheHeader> mEntries =
-            new LinkedHashMap<String, CacheHeader>(16, .75f, true);
+            new LinkedHashMap<String, CacheHeader>(16, .75f, true); //使用LinkedHashMap实现LRU算法
 
     /** Total amount of space currently used by the cache in bytes. */
     private long mTotalSize = 0;
@@ -57,7 +57,7 @@ public class DiskBasedCache implements Cache {
     private final int mMaxCacheSizeInBytes;
 
     /** Default maximum disk usage in bytes. */
-    private static final int DEFAULT_DISK_USAGE_BYTES = 5 * 1024 * 1024;
+    private static final int DEFAULT_DISK_USAGE_BYTES = 5 * 1024 * 1024; // 默认缓存大小：5MB
 
     /** High water mark percentage for the cache */
     private static final float HYSTERESIS_FACTOR = 0.9f;
@@ -136,6 +136,8 @@ public class DiskBasedCache implements Cache {
     /**
      * Initializes the DiskBasedCache by scanning for all files currently in the
      * specified root directory. Creates the root directory if necessary.
+     *
+     * 初始化DiskBasedCache，在当前Cache目录将所有缓存扫描至mEntries
      */
     @Override
     public synchronized void initialize() {
@@ -191,6 +193,8 @@ public class DiskBasedCache implements Cache {
 
     /**
      * Puts the entry with the specified key into the cache.
+     *
+     * 将Entry添加至Cache中
      */
     @Override
     public synchronized void put(String key, Entry entry) {
@@ -251,6 +255,9 @@ public class DiskBasedCache implements Cache {
 
     /**
      * Prunes the cache to fit the amount of bytes specified.
+     *
+     * 删除内容，直到满足缓存容量
+     *
      * @param neededSpace The amount of bytes we are trying to fit into the cache.
      */
     private void pruneIfNeeded(int neededSpace) {
@@ -382,6 +389,9 @@ public class DiskBasedCache implements Cache {
 
         /**
          * Reads the header off of an InputStream and returns a CacheHeader object.
+         *
+         * 从InputSteam中读取Header
+         *
          * @param is The InputStream to read from.
          * @throws IOException
          */
@@ -390,6 +400,7 @@ public class DiskBasedCache implements Cache {
             int magic = readInt(is);
             if (magic != CACHE_MAGIC) {
                 // don't bother deleting, it'll get pruned eventually
+                // 不要担心删除，最终是会被删除的
                 throw new IOException();
             }
             entry.key = readString(is);
@@ -481,6 +492,8 @@ public class DiskBasedCache implements Cache {
     /**
      * Simple wrapper around {@link InputStream#read()} that throws EOFException
      * instead of returning -1.
+     *
+     * 读一个字节的数据
      */
     private static int read(InputStream is) throws IOException {
         int b = is.read();
@@ -517,6 +530,12 @@ public class DiskBasedCache implements Cache {
         os.write((byte)(n >>> 56));
     }
 
+    /**
+     * 读8个字节， Long类型是8个字节
+     * @param is
+     * @return
+     * @throws IOException
+     */
     static long readLong(InputStream is) throws IOException {
         long n = 0;
         n |= ((read(is) & 0xFFL) << 0);

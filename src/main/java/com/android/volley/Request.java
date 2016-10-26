@@ -56,7 +56,9 @@ public abstract class Request<T> implements Comparable<Request<T>> {
         int PATCH = 7;
     }
 
-    /** An event log tracing the lifetime of this request; for debugging. */
+    /**
+     * An event log tracing the lifetime of this request; for debugging.
+     */
     private final MarkerLog mEventLog = MarkerLog.ENABLED ? new MarkerLog() : null;
 
     /**
@@ -65,44 +67,76 @@ public abstract class Request<T> implements Comparable<Request<T>> {
      */
     private final int mMethod;
 
-    /** URL of this request. */
+    /**
+     * URL of this request.
+     */
     private final String mUrl;
 
-    /** Default tag for {@link TrafficStats}. */
+    /**
+     * Default tag for {@link TrafficStats}.
+     * 默认的传输统计Tag
+     */
     private final int mDefaultTrafficStatsTag;
 
-    /** Listener interface for errors. */
+    /**
+     * Listener interface for errors.
+     * Error回调接口
+     */
     private final Response.ErrorListener mErrorListener;
 
-    /** Sequence number of this request, used to enforce FIFO ordering. */
+    /**
+     * Sequence number of this request, used to enforce FIFO ordering.
+     *
+     *  Request序列号，通常强制使用FIFO
+     */
     private Integer mSequence;
 
-    /** The request queue this request is associated with. */
+    /**
+     * The request queue this request is associated with.
+     */
     private RequestQueue mRequestQueue;
 
-    /** Whether or not responses to this request should be cached. */
+    /**
+     * Whether or not responses to this request should be cached.
+     *
+     * 默认会缓存Response
+     */
     private boolean mShouldCache = true;
 
-    /** Whether or not this request has been canceled. */
+    /**
+     * Whether or not this request has been canceled.
+     */
     private boolean mCanceled = false;
 
-    /** Whether or not a response has been delivered for this request yet. */
+    /**
+     * Whether or not a response has been delivered for this request yet.
+     */
     private boolean mResponseDelivered = false;
 
-    /** Whether the request should be retried in the event of an HTTP 5xx (server) error. */
+    /**
+     * Whether the request should be retried in the event of an HTTP 5xx (server) error.
+     *
+     * 当服务器返回5XX时，默认不重传
+     */
     private boolean mShouldRetryServerErrors = false;
 
-    /** The retry policy for this request. */
+    /**
+     * The retry policy for this request.
+     */
     private RetryPolicy mRetryPolicy;
 
     /**
      * When a request can be retrieved from cache but must be refreshed from
      * the network, the cache entry will be stored here so that in the event of
      * a "Not Modified" response, we can be sure it hasn't been evicted from cache.
+     *
+     * 当一个请求可以从换从中获取响应但是必须要通过网络刷新时，为了确保当包含"Not Modified"条件，该响应没有在缓存中过期，所以将Cache Entry存储于此.
      */
     private Cache.Entry mCacheEntry = null;
 
-    /** An opaque token tagging this request; used for bulk cancellation. */
+    /**
+     * An opaque token tagging this request; used for bulk cancellation.
+     */
     private Object mTag;
 
     /**
@@ -130,6 +164,7 @@ public abstract class Request<T> implements Comparable<Request<T>> {
         mErrorListener = listener;
         setRetryPolicy(new DefaultRetryPolicy());
 
+        //相同域名使用同一个tag
         mDefaultTrafficStatsTag = findDefaultTrafficStatsTag(url);
     }
 
@@ -153,6 +188,7 @@ public abstract class Request<T> implements Comparable<Request<T>> {
 
     /**
      * Returns this request's tag.
+     *
      * @see Request#setTag(Object)
      */
     public Object getTag() {
@@ -192,6 +228,8 @@ public abstract class Request<T> implements Comparable<Request<T>> {
     /**
      * Sets the retry policy for this request.
      *
+     * 设置重传策略
+     *
      * @return This Request object to allow for chaining.
      */
     public Request<?> setRetryPolicy(RetryPolicy retryPolicy) {
@@ -210,7 +248,7 @@ public abstract class Request<T> implements Comparable<Request<T>> {
 
     /**
      * Notifies the request queue that this request has finished (successfully or with error).
-     *
+     * <p>
      * <p>Also dumps all events from this request's event log; for debugging.</p>
      */
     void finish(final String tag) {
@@ -278,6 +316,8 @@ public abstract class Request<T> implements Comparable<Request<T>> {
 
     /**
      * Returns the cache key for this request.  By default, this is the URL.
+     *
+     * 默认的CacheKey即Url
      */
     public String getCacheKey() {
         return getUrl();
@@ -286,6 +326,8 @@ public abstract class Request<T> implements Comparable<Request<T>> {
     /**
      * Annotates this request with an entry retrieved for it from cache.
      * Used for cache coherency support.
+     *
+     * 给Request添加Entry，从Cache中取出时使用该Entry
      *
      * @return This Request object to allow for chaining.
      */
@@ -303,6 +345,8 @@ public abstract class Request<T> implements Comparable<Request<T>> {
 
     /**
      * Mark this request as canceled.  No callback will be delivered.
+     *
+     * 标记此Request已取消，不会有回调响应该Response
      */
     public void cancel() {
         mCanceled = true;
@@ -329,11 +373,11 @@ public abstract class Request<T> implements Comparable<Request<T>> {
      * Returns a Map of POST parameters to be used for this request, or null if
      * a simple GET should be used.  Can throw {@link AuthFailureError} as
      * authentication may be required to provide these values.
-     *
+     * <p>
      * <p>Note that only one of getPostParams() and getPostBody() can return a non-null
      * value.</p>
-     * @throws AuthFailureError In the event of auth failure
      *
+     * @throws AuthFailureError In the event of auth failure
      * @deprecated Use {@link #getParams()} instead.
      */
     @Deprecated
@@ -345,12 +389,13 @@ public abstract class Request<T> implements Comparable<Request<T>> {
      * Returns which encoding should be used when converting POST parameters returned by
      * {@link #getPostParams()} into a raw POST body.
      *
+     * <p>
      * <p>This controls both encodings:
      * <ol>
-     *     <li>The string encoding used when converting parameter names and values into bytes prior
-     *         to URL encoding them.</li>
-     *     <li>The string encoding used when converting the URL encoded parameters into a raw
-     *         byte array.</li>
+     * <li>The string encoding used when converting parameter names and values into bytes prior
+     * to URL encoding them.</li>
+     * <li>The string encoding used when converting the URL encoded parameters into a raw
+     * byte array.</li>
      * </ol>
      *
      * @deprecated Use {@link #getParamsEncoding()} instead.
@@ -372,7 +417,6 @@ public abstract class Request<T> implements Comparable<Request<T>> {
      * Returns the raw POST body to be sent.
      *
      * @throws AuthFailureError In the event of auth failure
-     *
      * @deprecated Use {@link #getBody()} instead.
      */
     @Deprecated
@@ -391,8 +435,10 @@ public abstract class Request<T> implements Comparable<Request<T>> {
     /**
      * Returns a Map of parameters to be used for a POST or PUT request.  Can throw
      * {@link AuthFailureError} as authentication may be required to provide these values.
-     *
+     * <p>
      * <p>Note that you can directly override {@link #getBody()} for custom data.</p>
+     *
+     * 注：对于自定义的数据，可以直接覆写getBody()方法
      *
      * @throws AuthFailureError in the event of auth failure
      */
@@ -403,13 +449,13 @@ public abstract class Request<T> implements Comparable<Request<T>> {
     /**
      * Returns which encoding should be used when converting POST or PUT parameters returned by
      * {@link #getParams()} into a raw POST or PUT body.
-     *
+     * <p>
      * <p>This controls both encodings:
      * <ol>
-     *     <li>The string encoding used when converting parameter names and values into bytes prior
-     *         to URL encoding them.</li>
-     *     <li>The string encoding used when converting the URL encoded parameters into a raw
-     *         byte array.</li>
+     * <li>The string encoding used when converting parameter names and values into bytes prior
+     * to URL encoding them.</li>
+     * <li>The string encoding used when converting the URL encoded parameters into a raw
+     * byte array.</li>
      * </ol>
      */
     protected String getParamsEncoding() {
@@ -425,10 +471,12 @@ public abstract class Request<T> implements Comparable<Request<T>> {
 
     /**
      * Returns the raw POST or PUT body to be sent.
-     *
+     * <p>
      * <p>By default, the body consists of the request parameters in
      * application/x-www-form-urlencoded format. When overriding this method, consider overriding
      * {@link #getBodyContentType()} as well to match the new body format.
+     *
+     * 默认情况下，body有请求参数组成。当重写此方法时，考虑重写getBodyContentType()方法
      *
      * @throws AuthFailureError in the event of auth failure
      */
@@ -495,6 +543,8 @@ public abstract class Request<T> implements Comparable<Request<T>> {
     /**
      * Priority values.  Requests will be processed from higher priorities to
      * lower priorities, in FIFO order.
+     *
+     * 请求将会根据Priority大小进行处理
      */
     public enum Priority {
         LOW,
@@ -514,6 +564,8 @@ public abstract class Request<T> implements Comparable<Request<T>> {
      * Returns the socket timeout in milliseconds per retry attempt. (This value can be changed
      * per retry attempt if a backoff is specified via backoffTimeout()). If there are no retry
      * attempts remaining, this will cause delivery of a {@link TimeoutError} error.
+     *
+     * socket超时时间，默认2.5秒
      */
     public final int getTimeoutMs() {
         return mRetryPolicy.getCurrentTimeout();
@@ -529,6 +581,8 @@ public abstract class Request<T> implements Comparable<Request<T>> {
     /**
      * Mark this request as having a response delivered on it.  This can be used
      * later in the request's lifetime for suppressing identical responses.
+     *
+     * 标记该请求已有响应正在分发。
      */
     public void markDelivered() {
         mResponseDelivered = true;
@@ -546,6 +600,9 @@ public abstract class Request<T> implements Comparable<Request<T>> {
      * and return an appropriate response type. This method will be
      * called from a worker thread.  The response will not be delivered
      * if you return null.
+     *
+     * 子类必须实现该方法，解析Response。 该方法在worker线程调用。
+     *
      * @param response Response from the network
      * @return The parsed response, or null in the case of an error
      */
@@ -553,7 +610,7 @@ public abstract class Request<T> implements Comparable<Request<T>> {
 
     /**
      * Subclasses can override this method to parse 'networkError' and return a more specific error.
-     *
+     * <p>
      * <p>The default implementation just returns the passed 'networkError'.</p>
      *
      * @param volleyError the error retrieved from the network
@@ -567,8 +624,11 @@ public abstract class Request<T> implements Comparable<Request<T>> {
      * Subclasses must implement this to perform delivery of the parsed
      * response to their listeners.  The given response is guaranteed to
      * be non-null; responses that fail to parse are not delivered.
+     *
+     * 子类必须实现该方法，分发Response至监听器。
+     *
      * @param response The parsed response returned by
-     * {@link #parseNetworkResponse(NetworkResponse)}
+     *                 {@link #parseNetworkResponse(NetworkResponse)}
      */
     abstract protected void deliverResponse(T response);
 
@@ -587,6 +647,8 @@ public abstract class Request<T> implements Comparable<Request<T>> {
     /**
      * Our comparator sorts from high to low priority, and secondarily by
      * sequence number to provide FIFO ordering.
+     *
+     * 先比较Priority，如果Priority不相等，再比较序列号
      */
     @Override
     public int compareTo(Request<T> other) {

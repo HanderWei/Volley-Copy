@@ -63,6 +63,8 @@ public interface Cache {
 
     /**
      * Data and metadata for an entry returned by the cache.
+     *
+     * 数据和元数据
      */
     public static class Entry {
         /** The data returned from cache. */

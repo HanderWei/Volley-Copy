@@ -341,6 +341,7 @@ public class RequestQueue {
             mCurrentRequests.remove(request);
         }
         synchronized (mFinishedListeners) {
+            //回调 onRequestFinished()
             for (RequestFinishedListener<T> listener : mFinishedListeners) {
                 listener.onRequestFinished(request);
             }
@@ -357,6 +358,7 @@ public class RequestQueue {
                     }
                     // Process all queued up requests. They won't be considered as in flight, but
                     // that's not a problem as the cache has been primed by 'request'.
+                    // 处理所有正在排队的请求。
                     mCacheQueue.addAll(waitingRequests);
                 }
             }
