@@ -27,6 +27,9 @@ import com.android.volley.RequestQueue;
 
 import java.io.File;
 
+/**
+ * 创建RequestQueue实例
+ */
 public class Volley {
 
     /** Default on-disk cache directory. */
@@ -35,7 +38,7 @@ public class Volley {
     /**
      * Creates a default instance of the worker pool and calls {@link RequestQueue#start()} on it.
      *
-     * @param context A {@link Context} to use for creating the cache dir.
+     * @param context A {@link Context} to use for creating the cache dir. 创建缓存目录
      * @param stack An {@link HttpStack} to use for the network, or null for default.
      * @return A started {@link RequestQueue} instance.
      */
