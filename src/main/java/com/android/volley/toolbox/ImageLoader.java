@@ -289,9 +289,11 @@ public class ImageLoader {
      */
     protected void onGetImageSuccess(String cacheKey, Bitmap response) {
         // cache the image that was fetched.
+        // 加入缓存
         mCache.putBitmap(cacheKey, response);
 
         // remove the request from the list of in-flight requests.
+        // 尝试从InFlightRequests中删除
         BatchedImageRequest request = mInFlightRequests.remove(cacheKey);
 
         if (request != null) {
