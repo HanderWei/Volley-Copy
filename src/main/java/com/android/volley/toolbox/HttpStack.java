@@ -31,8 +31,12 @@ public interface HttpStack {
     /**
      * Performs an HTTP request with the given parameters.
      *
+     * 执行HTTP请求
+     *
      * <p>A GET request is sent if request.getPostBody() == null. A POST request is sent otherwise,
      * and the Content-Type header is set to request.getPostBodyContentType().</p>
+     *
+     * 如果getPostBody() == null， 则发送GET请求，否则发送POST请求
      *
      * @param request the request to perform
      * @param additionalHeaders additional headers to be sent together with

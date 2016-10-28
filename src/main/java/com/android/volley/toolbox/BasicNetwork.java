@@ -53,6 +53,8 @@ import java.util.TreeMap;
 
 /**
  * A network performing Volley requests over an {@link HttpStack}.
+ * <p>
+ * 封装的Network类，执行Request
  */
 public class BasicNetwork implements Network {
     protected static final boolean DEBUG = VolleyLog.DEBUG;
@@ -66,6 +68,8 @@ public class BasicNetwork implements Network {
     protected final ByteArrayPool mPool;
 
     /**
+     * 构造函数需要传递一个HTTP Stack
+     *
      * @param httpStack HTTP stack to be used
      */
     public BasicNetwork(HttpStack httpStack) {
@@ -76,7 +80,8 @@ public class BasicNetwork implements Network {
 
     /**
      * @param httpStack HTTP stack to be used
-     * @param pool a buffer pool that improves GC performance in copy operations
+     * @param pool      a buffer pool that improves GC performance in copy operations
+     *                  一个缓冲器，用来提升复制操作时产生的GC效率
      */
     public BasicNetwork(HttpStack httpStack, ByteArrayPool pool) {
         mHttpStack = httpStack;
@@ -100,9 +105,11 @@ public class BasicNetwork implements Network {
 
                 responseHeaders = convertHeaders(httpResponse.getAllHeaders());
                 // Handle cache validation.
+                // 304
                 if (statusCode == HttpStatus.SC_NOT_MODIFIED) {
 
                     Entry entry = request.getCacheEntry();
+                    // 如果缓存不命中，则返回空数据
                     if (entry == null) {
                         return new NetworkResponse(HttpStatus.SC_NOT_MODIFIED, null,
                                 responseHeaders, true,
@@ -112,6 +119,7 @@ public class BasicNetwork implements Network {
                     // A HTTP 304 response does not have all header fields. We
                     // have to use the header fields from the cache entry plus
                     // the new ones from the response.
+                    // HTTP 304 code 不会返回所有的Header。 需要复用Cache Entry中的Response
                     // http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.3.5
                     entry.responseHeaders.putAll(responseHeaders);
                     return new NetworkResponse(HttpStatus.SC_NOT_MODIFIED, entry.data,
@@ -121,11 +129,12 @@ public class BasicNetwork implements Network {
 
                 // Some responses such as 204s do not have content.  We must check.
                 if (httpResponse.getEntity() != null) {
-                  responseContents = entityToBytes(httpResponse.getEntity());
+                    responseContents = entityToBytes(httpResponse.getEntity());
                 } else {
-                  // Add 0 byte response as a way of honestly representing a
-                  // no-content request.
-                  responseContents = new byte[0];
+                    // Add 0 byte response as a way of honestly representing a
+                    // no-content request.
+                    // 如果Response的Content为空，则添加0Byte 表示空Content
+                    responseContents = new byte[0];
                 }
 
                 // if the request is slow, log it.
@@ -133,6 +142,7 @@ public class BasicNetwork implements Network {
                 logSlowRequests(requestLifetime, request, responseContents, statusLine);
 
                 if (statusCode < 200 || statusCode > 299) {
+                    // 网络错误，则抛出IO异常
                     throw new IOException();
                 }
                 return new NetworkResponse(statusCode, responseContents, responseHeaders, false,
@@ -182,12 +192,14 @@ public class BasicNetwork implements Network {
 
     /**
      * Logs requests that took over SLOW_REQUEST_THRESHOLD_MS to complete.
+     *
+     * 如果请求时间过慢，则日志输出
      */
     private void logSlowRequests(long requestLifetime, Request<?> request,
-            byte[] responseContents, StatusLine statusLine) {
+                                 byte[] responseContents, StatusLine statusLine) {
         if (DEBUG || requestLifetime > SLOW_REQUEST_THRESHOLD_MS) {
             VolleyLog.d("HTTP response for request=<%s> [lifetime=%d], [size=%s], " +
-                    "[rc=%d], [retryCount=%s]", request, requestLifetime,
+                            "[rc=%d], [retryCount=%s]", request, requestLifetime,
                     responseContents != null ? responseContents.length : "null",
                     statusLine.getStatusCode(), request.getRetryPolicy().getCurrentRetryCount());
         }
@@ -196,10 +208,11 @@ public class BasicNetwork implements Network {
     /**
      * Attempts to prepare the request for a retry. If there are no more attempts remaining in the
      * request's retry policy, a timeout exception is thrown.
+     *
      * @param request The request to use.
      */
     private static void attemptRetryOnException(String logPrefix, Request<?> request,
-            VolleyError exception) throws VolleyError {
+                                                VolleyError exception) throws VolleyError {
         RetryPolicy retryPolicy = request.getRetryPolicy();
         int oldTimeout = request.getTimeoutMs();
 
@@ -213,6 +226,12 @@ public class BasicNetwork implements Network {
         request.addMarker(String.format("%s-retry [timeout=%s]", logPrefix, oldTimeout));
     }
 
+    /**
+     * 添加Cache Header
+     *
+     * @param headers
+     * @param entry
+     */
     private void addCacheHeaders(Map<String, String> headers, Cache.Entry entry) {
         // If there's no cache entry, we're done.
         if (entry == null) {
@@ -234,7 +253,9 @@ public class BasicNetwork implements Network {
         VolleyLog.v("HTTP ERROR(%s) %d ms to fetch %s", what, (now - start), url);
     }
 
-    /** Reads the contents of HttpEntity into a byte[]. */
+    /**
+     * Reads the contents of HttpEntity into a byte[].
+     */
     private byte[] entityToBytes(HttpEntity entity) throws IOException, ServerError {
         PoolingByteArrayOutputStream bytes =
                 new PoolingByteArrayOutputStream(mPool, (int) entity.getContentLength());
@@ -266,6 +287,8 @@ public class BasicNetwork implements Network {
 
     /**
      * Converts Headers[] to Map<String, String>.
+     * <p>
+     * Headers[] == >> Map<String, String>
      */
     protected static Map<String, String> convertHeaders(Header[] headers) {
         Map<String, String> result = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER);

@@ -103,6 +103,8 @@ public class DefaultRetryPolicy implements RetryPolicy {
     /**
      * Prepares for the next retry by applying a backoff to the timeout.
      *
+     * 下次重传前的预备工作
+     *
      * @param error The error code of the last attempt.
      */
     @Override

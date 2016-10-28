@@ -73,6 +73,8 @@ public class ExecutorDelivery implements ResponseDelivery {
 
     /**
      * A Runnable used for delivering network responses to a listener on the
+     *
+     * 一个Runnable对象，用来分发网络响应
      * main thread.
      */
     @SuppressWarnings("rawtypes")
@@ -91,13 +93,15 @@ public class ExecutorDelivery implements ResponseDelivery {
         @Override
         public void run() {
             // If this request has canceled, finish it and don't deliver.
+            // 如果该Request已经取消，则不进行分发
             if (mRequest.isCanceled()) {
                 mRequest.finish("canceled-at-delivery");
                 return;
             }
 
             // Deliver a normal response or error, depending.
-            if (mResponse.isSuccess()) {
+            // 根据Response是否成功，分发Response或者Error
+            if (mResponse.isSuccess()) { // error == null ? false : true
                 mRequest.deliverResponse(mResponse.result);
             } else {
                 mRequest.deliverError(mResponse.error);
@@ -105,6 +109,7 @@ public class ExecutorDelivery implements ResponseDelivery {
 
             // If this is an intermediate response, add a marker, otherwise we're done
             // and the request can be finished.
+            // 如果是一个intermediate Response(soft-expired，后期还会有新的Response返回), 则添加标记，否则直接标记finish
             if (mResponse.intermediate) {
                 mRequest.addMarker("intermediate-response");
             } else {
@@ -112,6 +117,7 @@ public class ExecutorDelivery implements ResponseDelivery {
             }
 
             // If we have been provided a post-delivery runnable, run it.
+            // 如果还包含一个Runnable对象，则运行之
             if (mRunnable != null) {
                 mRunnable.run();
             }
