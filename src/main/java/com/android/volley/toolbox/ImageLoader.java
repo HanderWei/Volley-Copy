@@ -326,7 +326,12 @@ public class ImageLoader {
     /**
      * Container object for all of the data surrounding an image request.
      *
-     * Container对象，包含Image Request的所有
+     * Container对象，包含Image Request的所有数据
+     *
+     * 1. Bitmap
+     * 2. ImageListener
+     * 3. cache key
+     * 4. URL
      */
     public class ImageContainer {
         /**
@@ -465,6 +470,9 @@ public class ImageLoader {
 
     /**
      * Starts the runnable for batched delivery of responses if it is not already started.
+     *
+     * 启动Runnable，分发响应
+     *
      * @param cacheKey The cacheKey of the response being delivered.
      * @param request The BatchedImageRequest to be delivered.
      */

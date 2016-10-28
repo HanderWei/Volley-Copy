@@ -20,6 +20,8 @@ import com.android.volley.Cache;
 
 /**
  * A cache that doesn't.
+ *
+ * 所用实现方法均为空方法
  */
 public class NoCache implements Cache {
     @Override

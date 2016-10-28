@@ -27,16 +27,20 @@ import java.util.concurrent.TimeoutException;
 
 /**
  * A Future that represents a Volley request.
- *
+ * <p>
+ * 一个代表Volley Request的Feature
+ * <p>
  * Used by providing as your response and error listeners. For example:
  * <pre>
- * RequestFuture&lt;JSONObject&gt; future = RequestFuture.newFuture();
+ * RequestFuture<JSONObject> future = RequestFuture.newFuture();
  * MyRequest request = new MyRequest(URL, future, future);
  *
  * // If you want to be able to cancel the request:
+ * // 如果希望该Request可以被cancel
  * future.setRequest(requestQueue.add(request));
  *
  * // Otherwise:
+ * // 否则直接添加添加至RequestQueue
  * requestQueue.add(request);
  *
  * try {
@@ -52,7 +56,7 @@ import java.util.concurrent.TimeoutException;
  * @param <T> The type of parsed response this future expects.
  */
 public class RequestFuture<T> implements Future<T>, Response.Listener<T>,
-       Response.ErrorListener {
+        Response.ErrorListener {
     private Request<?> mRequest;
     private boolean mResultReceived = false;
     private T mResult;
@@ -62,7 +66,8 @@ public class RequestFuture<T> implements Future<T>, Response.Listener<T>,
         return new RequestFuture<E>();
     }
 
-    private RequestFuture() {}
+    private RequestFuture() {
+    }
 
     public void setRequest(Request<?> request) {
         mRequest = request;

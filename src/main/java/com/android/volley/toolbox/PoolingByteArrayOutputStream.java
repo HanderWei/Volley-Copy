@@ -22,6 +22,8 @@ import java.io.IOException;
 /**
  * A variation of {@link java.io.ByteArrayOutputStream} that uses a pool of byte[] buffers instead
  * of always allocating them fresh, saving on heap churn.
+ *
+ * ByteArrayOutputStream 的变体，使用一个byte[]缓冲池，而不是每次都分配一个新的Heap
  */
 public class PoolingByteArrayOutputStream extends ByteArrayOutputStream {
     /**

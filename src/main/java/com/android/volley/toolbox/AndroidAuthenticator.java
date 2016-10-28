@@ -28,6 +28,8 @@ import android.os.Bundle;
 /**
  * An Authenticator that uses {@link AccountManager} to get auth
  * tokens of a specified type for a specified account.
+ *
+ * 使用AccountManager获取认证Token
  */
 public class AndroidAuthenticator implements Authenticator {
     private final AccountManager mAccountManager;

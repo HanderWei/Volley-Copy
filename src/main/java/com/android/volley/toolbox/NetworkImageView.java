@@ -103,6 +103,8 @@ public class NetworkImageView extends ImageView {
     /**
      * Loads the image for the view if it isn't already loaded.
      * @param isInLayoutPass True if this was invoked from a layout pass, false otherwise.
+     *
+     *                       是否是从onLayout()方法中调用
      */
     void loadImageIfNecessary(final boolean isInLayoutPass) {
         int width = getWidth();
@@ -166,6 +168,10 @@ public class NetworkImageView extends ImageView {
                         // pass do not set the image immediately as it will trigger a requestLayout
                         // inside of a layout. Instead, defer setting the image by posting back to
                         // the main thread.
+                        // FIXME 没看懂
+                        // 1. 如果是从onLayout()方法中调用，并且是个直接响应
+                        // 2. 不需要立即设置图片直到其触发了 requestLayout() 方法
+                        // 3. 否则，将设置图片推迟到主线程中
                         if (isImmediate && isInLayoutPass) {
                             post(new Runnable() {
                                 @Override
