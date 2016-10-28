@@ -65,9 +65,10 @@ public class NetworkResponse {
     public final Map<String, String> headers;
 
     /** True if the server returned a 304 (Not Modified). */
+    /** 服务端是否返回304，内容为修改 */
     public final boolean notModified;
 
-    /** Network roundtrip time in milliseconds. */
+    /** Network round-trip time in milliseconds. */
     public final long networkTimeMs;
 }
 

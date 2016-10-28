@@ -68,6 +68,7 @@ public class VolleyLog {
         Log.e(TAG, buildMessage(format, args), tr);
     }
 
+    // What a Terrible Failure
     public static void wtf(String format, Object... args) {
         Log.wtf(TAG, buildMessage(format, args));
     }

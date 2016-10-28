@@ -29,6 +29,7 @@ public interface Network {
      *
      * @param request Request to process
      * @return A {@link NetworkResponse} with data and caching metadata; will never be null
+     *          返回NetworkResponse
      * @throws VolleyError on errors
      */
     public NetworkResponse performRequest(Request<?> request) throws VolleyError;

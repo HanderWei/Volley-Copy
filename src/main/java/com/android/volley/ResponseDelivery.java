@@ -16,6 +16,9 @@
 
 package com.android.volley;
 
+/**
+ * 分发Response
+ */
 public interface ResponseDelivery {
     /**
      * Parses a response from the network or cache and delivers it.
@@ -25,6 +28,8 @@ public interface ResponseDelivery {
     /**
      * Parses a response from the network or cache and delivers it. The provided
      * Runnable will be executed after delivery.
+     * <p>
+     * runnable 对象会在分发完开始执行
      */
     public void postResponse(Request<?> request, Response<?> response, Runnable runnable);
 

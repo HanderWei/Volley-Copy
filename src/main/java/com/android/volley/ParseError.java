@@ -18,6 +18,8 @@ package com.android.volley;
 
 /**
  * Indicates that the server's response could not be parsed.
+ *
+ * 表示服务端的Response无法解析
  */
 @SuppressWarnings("serial")
 public class ParseError extends VolleyError {

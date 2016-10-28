@@ -22,6 +22,8 @@ import java.util.concurrent.Executor;
 
 /**
  * Delivers responses and errors.
+ *
+ * Response分发器默认实现
  */
 public class ExecutorDelivery implements ResponseDelivery {
     /** Used for posting responses, typically to the main thread. */

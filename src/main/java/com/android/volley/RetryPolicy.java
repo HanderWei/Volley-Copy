@@ -18,6 +18,8 @@ package com.android.volley;
 
 /**
  * Retry policy for a request.
+ *
+ * 重传协议
  */
 public interface RetryPolicy {
 
@@ -28,6 +30,8 @@ public interface RetryPolicy {
 
     /**
      * Returns the current retry count (used for logging).
+     *
+     * 返回重传次数
      */
     public int getCurrentRetryCount();
 
