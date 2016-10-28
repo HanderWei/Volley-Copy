@@ -35,11 +35,15 @@ public class NetworkImageView extends ImageView {
 
     /**
      * Resource ID of the image to be used as a placeholder until the network image is loaded.
+     *
+     * place_holder.png
      */
     private int mDefaultImageId;
 
     /**
      * Resource ID of the image to be used if the network response fails.
+     *
+     * error.png
      */
     private int mErrorImageId;
 

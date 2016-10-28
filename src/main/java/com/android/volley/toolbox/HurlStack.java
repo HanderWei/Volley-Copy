@@ -46,6 +46,8 @@ import javax.net.ssl.SSLSocketFactory;
 
 /**
  * An {@link HttpStack} based on {@link HttpURLConnection}.
+ *
+ * 一个基于HTTPURLConnection的HttpStack
  */
 public class HurlStack implements HttpStack {
 
@@ -58,6 +60,8 @@ public class HurlStack implements HttpStack {
         /**
          * Returns a URL to use instead of the provided one, or null to indicate
          * this URL should not be used at all.
+         *
+         * 重写URL
          */
         public String rewriteUrl(String originalUrl);
     }
@@ -85,6 +89,16 @@ public class HurlStack implements HttpStack {
         mSslSocketFactory = sslSocketFactory;
     }
 
+    /**
+     * 处理网络请求，返回HttpResponse
+     *
+     * @param request the request to perform
+     * @param additionalHeaders additional headers to be sent together with
+     *         {@link Request#getHeaders()}
+     * @return
+     * @throws IOException
+     * @throws AuthFailureError
+     */
     @Override
     public HttpResponse performRequest(Request<?> request, Map<String, String> additionalHeaders)
             throws IOException, AuthFailureError {
@@ -107,7 +121,9 @@ public class HurlStack implements HttpStack {
         setConnectionParametersForRequest(connection, request);
         // Initialize HttpResponse with data from the HttpURLConnection.
         ProtocolVersion protocolVersion = new ProtocolVersion("HTTP", 1, 1);
+
         int responseCode = connection.getResponseCode();
+
         if (responseCode == -1) {
             // -1 is returned by getResponseCode() if the response code could not be retrieved.
             // Signal to the caller that something was wrong with the connection.
@@ -138,8 +154,8 @@ public class HurlStack implements HttpStack {
     private static boolean hasResponseBody(int requestMethod, int responseCode) {
         return requestMethod != Request.Method.HEAD
             && !(HttpStatus.SC_CONTINUE <= responseCode && responseCode < HttpStatus.SC_OK)
-            && responseCode != HttpStatus.SC_NO_CONTENT
-            && responseCode != HttpStatus.SC_NOT_MODIFIED;
+            && responseCode != HttpStatus.SC_NO_CONTENT // != 104
+            && responseCode != HttpStatus.SC_NOT_MODIFIED; // != 304
     }
 
     /**
@@ -178,6 +194,9 @@ public class HurlStack implements HttpStack {
 
     /**
      * Opens an {@link HttpURLConnection} with parameters.
+     *
+     * 打开一个HttpURLConnection
+     *
      * @param url
      * @return an open connection
      * @throws IOException
@@ -255,11 +274,20 @@ public class HurlStack implements HttpStack {
         }
     }
 
+    /**
+     * 对于POST，PUT等方法，如果存在Body则添加之
+     * @param connection
+     * @param request
+     * @throws IOException
+     * @throws AuthFailureError
+     */
     private static void addBodyIfExists(HttpURLConnection connection, Request<?> request)
             throws IOException, AuthFailureError {
         byte[] body = request.getBody();
-        if (body != null) {
+        if (body != null) { //如果Request包含Body
             connection.setDoOutput(true);
+            // 添加Content-Type
+            // 默认Content-Type 为 "application/x-www-form-urlencoded; charset=UTF-8"
             connection.addRequestProperty(HEADER_CONTENT_TYPE, request.getBodyContentType());
             DataOutputStream out = new DataOutputStream(connection.getOutputStream());
             out.write(body);

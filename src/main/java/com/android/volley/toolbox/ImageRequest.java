@@ -31,24 +31,29 @@ import com.android.volley.VolleyLog;
 /**
  * A canned request for getting an image at a given URL and calling
  * back with a decoded Bitmap.
+ *
+ * 获取Image，Decode生成Bitmap
  */
 public class ImageRequest extends Request<Bitmap> {
     /** Socket timeout in milliseconds for image requests */
     public static final int DEFAULT_IMAGE_TIMEOUT_MS = 1000;
 
     /** Default number of retries for image requests */
+    /** 默认重传次数为2 */
     public static final int DEFAULT_IMAGE_MAX_RETRIES = 2;
 
     /** Default backoff multiplier for image requests */
+    /** 重传补偿时间倍数 */
     public static final float DEFAULT_IMAGE_BACKOFF_MULT = 2f;
 
     private final Response.Listener<Bitmap> mListener;
-    private final Config mDecodeConfig;
+    private final Config mDecodeConfig; //Bitmap Decode Config
     private final int mMaxWidth;
     private final int mMaxHeight;
     private ScaleType mScaleType;
 
     /** Decoding lock so that we don't decode more than one image at a time (to avoid OOM's) */
+    /** 解码锁, 避免OOM */
     private static final Object sDecodeLock = new Object();
 
     /**
@@ -59,6 +64,10 @@ public class ImageRequest extends Request<Bitmap> {
      * ratio. If both width and height are nonzero, the image will be decoded to
      * be fit in the rectangle of dimensions width x height while keeping its
      * aspect ratio.
+     *
+     * 1. 如果宽高均为0，则图片将按照其原始的宽高
+     * 2. 如果指定的宽度或者高度有一个不为0，则基于此数值按比例缩放
+     * 3. 如果均不为0，则图片将会按照所给宽高进行缩放
      *
      * @param url URL of the image
      * @param listener Listener to receive the decoded bitmap
@@ -84,6 +93,8 @@ public class ImageRequest extends Request<Bitmap> {
     /**
      * For API compatibility with the pre-ScaleType variant of the constructor. Equivalent to
      * the normal constructor with {@code ScaleType.CENTER_INSIDE}.
+     *
+     * 默认的图片缩放类型为 CENTER_INSIDES, 即居中，完整的显示出来
      */
     @Deprecated
     public ImageRequest(String url, Response.Listener<Bitmap> listener, int maxWidth, int maxHeight,
@@ -99,6 +110,12 @@ public class ImageRequest extends Request<Bitmap> {
     /**
      * Scales one side of a rectangle to fit aspect ratio.
      *
+     * 1. Primary   主边（返回主边的实际长度）
+     * 2. Second    次边
+     *
+     * 1. Max       最大值
+     * 2. Actual    实际值
+     *
      * @param maxPrimary Maximum size of the primary dimension (i.e. width for
      *        max width), or zero to maintain aspect ratio with secondary
      *        dimension
@@ -112,11 +129,13 @@ public class ImageRequest extends Request<Bitmap> {
             int actualSecondary, ScaleType scaleType) {
 
         // If no dominant value at all, just return the actual.
+        // 如果未设置最大值，则返回主边的实际长度
         if ((maxPrimary == 0) && (maxSecondary == 0)) {
             return actualPrimary;
         }
 
         // If ScaleType.FIT_XY fill the whole rectangle, ignore ratio.
+        // FIX_XY 不按比例缩放，塞满整个View
         if (scaleType == ScaleType.FIT_XY) {
             if (maxPrimary == 0) {
                 return actualPrimary;
@@ -125,6 +144,7 @@ public class ImageRequest extends Request<Bitmap> {
         }
 
         // If primary is unspecified, scale primary to match secondary's scaling ratio.
+        // 如果主边为指定最大长度，则主边按照次边长度比例缩放
         if (maxPrimary == 0) {
             double ratio = (double) maxSecondary / (double) actualSecondary;
             return (int) (actualPrimary * ratio);
@@ -138,6 +158,7 @@ public class ImageRequest extends Request<Bitmap> {
         int resized = maxPrimary;
 
         // If ScaleType.CENTER_CROP fill the whole rectangle, preserve aspect ratio.
+        // 如果ScaleType为CENTER_CROP，即按比例缩放到图片的宽高，居中显示
         if (scaleType == ScaleType.CENTER_CROP) {
             if ((resized * ratio) < maxSecondary) {
                 resized = (int) (maxSecondary / ratio);
@@ -154,6 +175,7 @@ public class ImageRequest extends Request<Bitmap> {
     @Override
     protected Response<Bitmap> parseNetworkResponse(NetworkResponse response) {
         // Serialize all decode on a global lock to reduce concurrent heap usage.
+        // 所有的Decode 操作通过一个全局锁，减少并发时的Heap使用
         synchronized (sDecodeLock) {
             try {
                 return doParse(response);

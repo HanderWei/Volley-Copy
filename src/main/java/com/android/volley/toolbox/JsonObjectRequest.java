@@ -52,6 +52,8 @@ public class JsonObjectRequest extends JsonRequest<JSONObject> {
      * Constructor which defaults to <code>GET</code> if <code>jsonRequest</code> is
      * <code>null</code>, <code>POST</code> otherwise.
      *
+     * 如果Request Body为空，则使用GET方法，否则使用POST方法
+     *
      * @see #JsonObjectRequest(int, String, JSONObject, Listener, ErrorListener)
      */
     public JsonObjectRequest(String url, JSONObject jsonRequest, Listener<JSONObject> listener,
@@ -65,6 +67,7 @@ public class JsonObjectRequest extends JsonRequest<JSONObject> {
         try {
             String jsonString = new String(response.data,
                     HttpHeaderParser.parseCharset(response.headers, PROTOCOL_CHARSET));
+            // String ==>> JSONObject
             return Response.success(new JSONObject(jsonString),
                     HttpHeaderParser.parseCacheHeaders(response));
         } catch (UnsupportedEncodingException e) {

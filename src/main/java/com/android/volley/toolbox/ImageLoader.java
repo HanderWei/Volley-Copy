@@ -52,15 +52,19 @@ public class ImageLoader {
     /**
      * HashMap of Cache keys -> BatchedImageRequest used to track in-flight requests so
      * that we can coalesce multiple requests to the same URL into a single network request.
+     *
+     * coalesce: 合并，结合
      */
     private final HashMap<String, BatchedImageRequest> mInFlightRequests =
             new HashMap<String, BatchedImageRequest>();
 
     /** HashMap of the currently pending responses (waiting to be delivered). */
+    /** 等待分发的Response */
     private final HashMap<String, BatchedImageRequest> mBatchedResponses =
             new HashMap<String, BatchedImageRequest>();
 
     /** Handler to the main thread. */
+    /** 主线程的Handler */
     private final Handler mHandler = new Handler(Looper.getMainLooper());
 
     /** Runnable for in-flight response delivery. */
@@ -90,6 +94,9 @@ public class ImageLoader {
      * The default implementation of ImageListener which handles basic functionality
      * of showing a default image until the network response is received, at which point
      * it will switch to either the actual image or the error image.
+     *
+     * 异步处理网络请求，返回Response时显示图片
+     *
      * @param view The imageView that the listener is associated with.
      * @param defaultImageResId Default image resource ID to use, or 0 if it doesn't exist.
      * @param errorImageResId Error image resource ID to use, or 0 if it doesn't exist.
@@ -213,6 +220,7 @@ public class ImageLoader {
         final String cacheKey = getCacheKey(requestUrl, maxWidth, maxHeight, scaleType);
 
         // Try to look up the request in the cache of remote images.
+        // 从缓存中读取
         Bitmap cachedBitmap = mCache.getBitmap(cacheKey);
         if (cachedBitmap != null) {
             // Return the cached bitmap.
@@ -273,6 +281,9 @@ public class ImageLoader {
 
     /**
      * Handler for when an image was successfully loaded.
+     *
+     * 图片加载成功
+     *
      * @param cacheKey The cache key that is associated with the image request.
      * @param response The bitmap that was returned from the network.
      */
@@ -312,6 +323,8 @@ public class ImageLoader {
 
     /**
      * Container object for all of the data surrounding an image request.
+     *
+     * Container对象，包含Image Request的所有
      */
     public class ImageContainer {
         /**

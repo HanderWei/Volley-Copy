@@ -27,11 +27,15 @@ import java.util.Map;
 
 /**
  * Utility methods for parsing HTTP headers.
+ *
+ * HTTP Header 解析工具类
  */
 public class HttpHeaderParser {
 
     /**
      * Extracts a {@link Cache.Entry} from a {@link NetworkResponse}.
+     *
+     * 从NetworkResponse中解析出Cache.Entry
      *
      * @param response The network response to parse headers from
      * @return a cache entry for the given response, or null if the response is not cacheable.

@@ -28,12 +28,16 @@ import java.io.UnsupportedEncodingException;
  * A canned request for retrieving the response body at a given URL as a String.
  */
 public class StringRequest extends Request<String> {
+
+    // Response.Listener
     private final Listener<String> mListener;
 
     /**
      * Creates a new request with the given method.
      *
-     * @param method the request {@link Method} to use
+     * StringRequest构造器
+     *
+     * @param method the request {@link Method} to use  HTTP方法
      * @param url URL to fetch the string at
      * @param listener Listener to receive the String response
      * @param errorListener Error listener, or null to ignore errors
@@ -46,6 +50,8 @@ public class StringRequest extends Request<String> {
 
     /**
      * Creates a new GET request.
+     *
+     * 默认HTTP方法为GET
      *
      * @param url URL to fetch the string at
      * @param listener Listener to receive the String response

@@ -46,6 +46,8 @@ import java.util.Map;
 
 /**
  * An HttpStack that performs request over an {@link HttpClient}.
+ *
+ * 已弃用(因为基于HttpClient)，推荐使用HurlStack
  */
 public class HttpClientStack implements HttpStack {
     protected final HttpClient mClient;
@@ -99,7 +101,7 @@ public class HttpClientStack implements HttpStack {
                 // If the request's post body is null, then the assumption is that the request is
                 // GET.  Otherwise, it is assumed that the request is a POST.
                 byte[] postBody = request.getPostBody();
-                if (postBody != null) {
+                if (postBody != null) { // 如果body 不为空，则使用POST方法
                     HttpPost postRequest = new HttpPost(request.getUrl());
                     postRequest.addHeader(HEADER_CONTENT_TYPE, request.getPostBodyContentType());
                     HttpEntity entity;

@@ -28,18 +28,26 @@ import java.io.UnsupportedEncodingException;
 /**
  * A request for retrieving a T type response body at a given URL that also
  * optionally sends along a JSON body in the request specified.
+ * <p>
+ * 发送JSON Body 的Request
  *
  * @param <T> JSON type of response expected
  */
 public abstract class JsonRequest<T> extends Request<T> {
     /** Default charset for JSON request. */
+    /**
+     * JSON Request 默认字符集
+     */
     protected static final String PROTOCOL_CHARSET = "utf-8";
 
     /** Content type for request. */
+    /**
+     * 默认Content-Type
+     */
     private static final String PROTOCOL_CONTENT_TYPE =
-        String.format("application/json; charset=%s", PROTOCOL_CHARSET);
+            String.format("application/json; charset=%s", PROTOCOL_CHARSET);
 
-    private final Listener<T> mListener;
+    private final Listener<T> mListener;    // Response.Listener
     private final String mRequestBody;
 
     /**
@@ -49,12 +57,12 @@ public abstract class JsonRequest<T> extends Request<T> {
      * @deprecated Use {@link #JsonRequest(int, String, String, Listener, ErrorListener)}.
      */
     public JsonRequest(String url, String requestBody, Listener<T> listener,
-            ErrorListener errorListener) {
+                       ErrorListener errorListener) {
         this(Method.DEPRECATED_GET_OR_POST, url, requestBody, listener, errorListener);
     }
 
     public JsonRequest(int method, String url, String requestBody, Listener<T> listener,
-            ErrorListener errorListener) {
+                       ErrorListener errorListener) {
         super(method, url, errorListener);
         mListener = listener;
         mRequestBody = requestBody;
@@ -65,6 +73,12 @@ public abstract class JsonRequest<T> extends Request<T> {
         mListener.onResponse(response);
     }
 
+    /**
+     * 子类必须实现方法
+     *
+     * @param response Response from the network
+     * @return
+     */
     @Override
     abstract protected Response<T> parseNetworkResponse(NetworkResponse response);
 

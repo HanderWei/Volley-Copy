@@ -84,6 +84,8 @@ public class ByteArrayPool {
      * Returns a buffer from the pool if one is available in the requested size, or allocates a new
      * one if a pooled one is not available.
      *
+     * 从ByteArrayPool中返回一个合适的Buffer，如果没有合适的，则分配一个新的Buffer
+     *
      * @param len the minimum size, in bytes, of the requested buffer. The returned buffer may be
      *        larger.
      * @return a byte[] buffer is always returned.
@@ -105,6 +107,8 @@ public class ByteArrayPool {
      * Returns a buffer to the pool, throwing away old buffers if the pool would exceed its allotted
      * size.
      *
+     * 返回一个Buffer至ByteArrayPool，按Size大小排序，如果单个Buffer的大小超出了可分配大小，则不做处理直接返回
+     *
      * @param buf the buffer to return to the pool.
      */
     public synchronized void returnBuf(byte[] buf) {
@@ -123,6 +127,8 @@ public class ByteArrayPool {
 
     /**
      * Removes buffers from the pool until it is under its size limit.
+     *
+     * 删Buffer，直到mCurrentSize <= mSizeLimit
      */
     private synchronized void trim() {
         while (mCurrentSize > mSizeLimit) {
